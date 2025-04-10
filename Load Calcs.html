@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Heating and Cooling Load Calculator (BTU & kW)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    input, select {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+    }
+    label {
+      font-weight: bold;
+    }
+    .toggle-button {
+      margin-bottom: 20px;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .toggle-button.active {
+      background-color: #008CBA;
+    }
+    .form-section {
+      display: none;
+    }
+    .form-section.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h2>G2Ref Load Calculator (Cooling & Heating)</h2>
+
+  <button id="toggleButton" class="toggle-button active">Switch to Heating Load Calculation</button>
+
+  <form id="loadForm">
+    <div id="coolingSection" class="form-section active">
+      <label>Room Length (m):</label>
+      <input type="number" step="any" id="length" required>
+
+      <label>Room Width (m):</label>
+      <input type="number" step="any" id="width" required>
+
+      <label>Room Height (m):</label>
+      <input type="number" step="any" id="height" required>
+
+      <label>North Window Width (m):</label>
+      <input type="number" step="any" id="north_window_width">
+
+      <label>North Window Height (m):</label>
+      <input type="number" step="any" id="north_window_height">
+
+      <label>North Window Shading:</label>
+      <select id="north_window_shading">
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+
+      <label>South Window Width (m):</label>
+      <input type="number" step="any" id="south_window_width">
+
+      <label>South Window Height (m):</label>
+      <input type="number" step="any" id="south_window_height">
+
+      <label>South Window Shading:</label>
+      <select id="south_window_shading">
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+
+      <label>Occupants:</label>
+      <input type="number" step="any" id="occupants">
+
+      <label>Equipment Load (watts):</label>
+      <input type="number" step="any" id="equipment">
+
+      <label>Lighting Load (watts):</label>
+      <input type="number" step="any" id="lighting">
+
+      <button type="button" onclick="calculateCooling()">Calculate Cooling Load</button>
+    </div>
+
+    <div id="heatingSection" class="form-section">
+      <label>Room Length (m):</label>
+      <input type="number" step="any" id="lengthHeating" required>
+
+      <label>Room Width (m):</label>
+      <input type="number" step="any" id="widthHeating" required>
+
+      <label>Room Height (m):</label>
+      <input type="number" step="any" id="heightHeating" required>
+
+      <label>North Window Width (m):</label>
+      <input type="number" step="any" id="north_window_widthHeating">
+
+      <label>North Window Height (m):</label>
+      <input type="number" step="any" id="north_window_heightHeating">
+
+      <label>North Window Shading:</label>
+      <select id="north_window_shadingHeating">
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+
+      <label>South Window Width (m):</label>
+      <input type="number" step="any" id="south_window_widthHeating">
+
+      <label>South Window Height (m):</label>
+      <input type="number" step="any" id="south_window_heightHeating">
+
+      <label>South Window Shading:</label>
+      <select id="south_window_shadingHeating">
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+
+      <label>Occupants:</label>
+      <input type="number" step="any" id="occupantsHeating">
+
+      <label>Equipment Load (watts):</label>
+      <input type="number" step="any" id="equipmentHeating">
+
+      <label>Lighting Load (watts):</label>
+      <input type="number" step="any" id="lightingHeating">
+
+      <label>Desired Temperature Increase (°C):</label>
+      <input type="number" step="any" id="temperature_increaseHeating">
+
+      <button type="button" onclick="calculateHeating()">Calculate Heating Load</button>
+    </div>
+  </form>
+
+  <h3 id="result"></h3>
+
+  <script>
+    const toggleButton = document.getElementById('toggleButton');
+    const coolingSection = document.getElementById('coolingSection');
+    const heatingSection = document.getElementById('heatingSection');
+    const resultEl = document.getElementById('result');
+
+    toggleButton.addEventListener('click', () => {
+      coolingSection.classList.toggle('active');
+      heatingSection.classList.toggle('active');
+      toggleButton.classList.toggle('active');
+      toggleButton.textContent = toggleButton.classList.contains('active') ? 'Switch to Heating Load Calculation' : 'Switch to Cooling Load Calculation';
+      resultEl.textContent = '';  // Clear previous result
+    });
+
+    function calculateCooling() {
+      const length = parseFloat(document.getElementById('length').value) || 0;
+      const width = parseFloat(document.getElementById('width').value) || 0;
+      const height = parseFloat(document.getElementById('height').value) || 0;
+      const volume = length * width * height;
+
+      const northWindowWidth = parseFloat(document.getElementById('north_window_width').value) || 0;
+      const northWindowHeight = parseFloat(document.getElementById('north_window_height').value) || 0;
+      const northShading = document.getElementById('north_window_shading').value === "true";
+      const southWindowWidth = parseFloat(document.getElementById('south_window_width').value) || 0;
+      const southWindowHeight = parseFloat(document.getElementById('south_window_height').value) || 0;
+      const southShading = document.getElementById('south_window_shading').value === "true";
+      const occupants = parseFloat(document.getElementById('occupants').value) || 0;
+      const equipment = parseFloat(document.getElementById('equipment').value) || 0;
+      const lighting = parseFloat(document.getElementById('lighting').value) || 0;
+
+      let coolingBTU = volume * 25;  // Cooling load based on volume (adjust for your calculation)
+      // Window heat gains
+      let northWindowBTU = northWindowWidth * northWindowHeight * 164;
+      if (!northShading) northWindowBTU *= 1.4;
+      let southWindowBTU = southWindowWidth * southWindowHeight * 868;
+      if (!southShading) southWindowBTU *= 1.4;
+
+      let occupantsBTU = occupants * 600;
+      let equipmentBTU = equipment * 3.412;
+      let lightingBTU = lighting * 3.754;
+
+      let totalBTU = Math.floor(coolingBTU + northWindowBTU + southWindowBTU + occupantsBTU + equipmentBTU + lightingBTU);
+      let totalKW = (totalBTU * 0.0002931).toFixed(2);
+
+      resultEl.innerHTML = `
+        <strong>Cooling Load:</strong><br>
+        Room Volume: ${volume.toLocaleString()} m³<br>
+        Total Cooling Load: ${totalBTU.toLocaleString()} BTU/hr<br>
+        Cooling Load: ${totalKW} kW
+      `;
+    }
+
+    function calculateHeating() {
+      const length = parseFloat(document.getElementById('lengthHeating').value) || 0;
+      const width = parseFloat(document.getElementById('widthHeating').value) || 0;
+      const height = parseFloat(document.getElementById('heightHeating').value) || 0;
+      const volume = length * width * height;
+
+      const northWindowWidth = parseFloat(document.getElementById('north_window_widthHeating').value) || 0;
+      const northWindowHeight = parseFloat(document.getElementById('north_window_heightHeating').value) || 0;
+      const northShading = document.getElementById('north_window_shadingHeating').value === "true";
+      const southWindowWidth = parseFloat(document.getElementById('south_window_widthHeating').value) || 0;
+      const southWindowHeight = parseFloat(document.getElementById('south_window_heightHeating').value) || 0;
+      const southShading = document.getElementById('south_window_shadingHeating').value === "true";
+      const occupants = parseFloat(document.getElementById('occupantsHeating').value) || 0;
+      const equipment = parseFloat(document.getElementById('equipmentHeating').value) || 0;
+      const lighting = parseFloat(document.getElementById('lightingHeating').value) || 0;
+      const temperatureIncrease = parseFloat(document.getElementById('temperature_increaseHeating').value) || 0;
+
+      const baseBtuPerM3 = 25; // BTU per cubic meter per °C for heating
+      let heatingBTU = volume * baseBtuPerM3 * temperatureIncrease;
+
+      // Window heat losses (simplified, adjust based on your needs)
+      let northWindowBTU = northWindowWidth * northWindowHeight * 50; // Example value
+      if (!northShading) northWindowBTU *= 1.4;
+
+      let southWindowBTU = southWindowWidth * southWindowHeight * 100; // Example value
+      if (!southShading) southWindowBTU *= 1.4;
+
+      // Adding occupants, equipment, and lighting
+      let occupantsBTU = occupants * 500; // Approximate value for heating
+      let equipmentBTU = equipment * 3.412;
+      let lightingBTU = lighting * 3.754;
+
+      let totalBTU = Math.floor(heatingBTU + northWindowBTU + southWindowBTU + occupantsBTU + equipmentBTU + lightingBTU);
+      let totalKW = (totalBTU * 0.0002931).toFixed(2);
+
+      resultEl.innerHTML = `
+        <strong>Heating Load:</strong><br>
+        Room Volume: ${volume.toLocaleString()} m³<br>
+        Desired Temperature Increase: ${temperatureIncrease}°C<br>
+        Total Heating Load: ${totalBTU.toLocaleString()} BTU/hr<br>
+        Heating Load: ${totalKW} kW
+      `;
+    }
+  </script>
+</body>
+</html>
